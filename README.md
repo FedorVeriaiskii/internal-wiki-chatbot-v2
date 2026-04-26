@@ -32,7 +32,7 @@ An AI-powered internal wiki chatbot that enables natural language conversations 
 ![Frontend app - Chat Interface](docu/screens/Frontend%20app%20-%20chat.png)
 
 ### Wiki Documents Loader
-![Frontend app - Wiki Documents Loader](docu/screens/Frontend%20app%20-%20wiki%20documents%20loader.png)
+![Frontend app - Wiki Documents Loader](docu/screens/Frontend%20app%20-%20wiki%20documents%20 loader.png)
 ## Project Structure
 
 ```

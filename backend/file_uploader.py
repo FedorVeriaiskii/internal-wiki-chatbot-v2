@@ -1,77 +1,100 @@
-"""File Uploader for handling file uploads and validation"""
+"""File upload handler — validation, persistence, and metadata extraction."""
 
-from typing import List
-from fastapi import UploadFile, File, HTTPException
+import logging
 import os
 from datetime import datetime
+from typing import List
+
+from fastapi import HTTPException, UploadFile
+
+from config import ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, UPLOAD_DIR
+
+logger = logging.getLogger(__name__)
 
 
 class FileUploader:
+    """Validates and persists uploaded files.
+
+    Enforces:
+    - Allowed MIME types (PDF, DOC, DOCX)
+    - Maximum file size (10 MB)
+
+    Saves accepted files to *upload_dir* and returns structured metadata
+    for each file that callers can store and pass to RAGManager.
     """
-    Manages file upload and validation
-    Handles file type validation, size checking, and persistence
-    """
-    
-    def __init__(self, upload_dir: str = "uploads"):
-        """
-        Initialize FileUploader
-        
-        Args:
-            upload_dir: Directory where files will be stored
-        """
+
+    def __init__(self, upload_dir: str = UPLOAD_DIR) -> None:
         self.upload_dir = upload_dir
+        self.allowed_types = ALLOWED_CONTENT_TYPES
+        self.max_file_size = MAX_FILE_SIZE
         os.makedirs(upload_dir, exist_ok=True)
-        self.allowed_types = [
-            "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ]
-        self.max_file_size = 10 * 1024 * 1024  # 10MB
-    
+        logger.debug(
+            "FileUploader ready (dir='%s', max_size=%d B)", upload_dir, MAX_FILE_SIZE
+        )
+
     async def process_uploads(self, files: List[UploadFile]) -> List[dict]:
-        """
-        Process uploaded files with validation
-        Validates file type and size, saves files, and returns file info
-        
+        """Validate and save *files*, returning metadata for each accepted file.
+
+        Validation is done file-by-file; the first invalid file raises an
+        HTTPException, aborting the entire batch.
+
         Args:
-            files: List of uploaded files
-        
+            files: List of incoming :class:`~fastapi.UploadFile` objects.
+
         Returns:
-            List of file info dictionaries containing name, size, uploadTime, and path
-            
+            List of dicts with keys: ``name``, ``size``, ``uploadTime``, ``path``.
+
         Raises:
-            HTTPException: If file validation fails
+            :class:`~fastapi.HTTPException`: On MIME-type or size violation.
         """
-        uploaded_file_info = []
-        
+        results: List[dict] = []
+
         for file in files:
-            # Validate file type
+            logger.debug("Processing upload: '%s' (%s)", file.filename, file.content_type)
+
+            # --- MIME-type validation ---
             if file.content_type not in self.allowed_types:
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"File {file.filename} has unsupported type. Only PDF and Word documents are allowed."
+                logger.warning(
+                    "Rejected '%s': unsupported content type '%s'",
+                    file.filename,
+                    file.content_type,
                 )
-            
-            # Validate file size (10MB limit)
-            file_content = await file.read()
-            if len(file_content) > self.max_file_size:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"File {file.filename} exceeds 10MB size limit"
+                    detail=(
+                        f"File '{file.filename}' has an unsupported type "
+                        f"({file.content_type}). Only PDF and Word documents are allowed."
+                    ),
                 )
-            
-            # Save file
+
+            # --- Read content and size validation ---
+            content = await file.read()
+            if len(content) > self.max_file_size:
+                logger.warning(
+                    "Rejected '%s': size %d B exceeds limit %d B",
+                    file.filename,
+                    len(content),
+                    self.max_file_size,
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File '{file.filename}' exceeds the 10 MB size limit.",
+                )
+
+            # --- Persist to disk ---
             file_path = os.path.join(self.upload_dir, file.filename)
-            with open(file_path, "wb") as buffer:
-                buffer.write(file_content)
-            
-            # Store file info
-            file_info = {
-                "name": file.filename,
-                "size": len(file_content),
-                "uploadTime": datetime.now(),
-                "path": file_path
-            }
-            uploaded_file_info.append(file_info)
-        
-        return uploaded_file_info
+            with open(file_path, "wb") as buf:
+                buf.write(content)
+
+            logger.info("Saved '%s' to '%s' (%d B)", file.filename, file_path, len(content))
+
+            results.append(
+                {
+                    "name": file.filename,
+                    "size": len(content),
+                    "uploadTime": datetime.now(),
+                    "path": file_path,
+                }
+            )
+
+        return results

@@ -1,6 +1,35 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+
+import { uploadWikiFiles } from './api';
+import {
+  ALLOWED_FILE_LABEL,
+  ALLOWED_FILE_TYPES,
+  DEFAULT_FILE_ICON,
+  FILE_ICON_MAP,
+  MAX_FILE_SIZE,
+} from './constants';
 import './LoadWikiPage.css';
+
+/** Return an emoji icon for a given file name based on its extension. */
+const getFileIcon = (fileName) => {
+  const ext = fileName.split('.').pop().toLowerCase();
+  return FILE_ICON_MAP[ext] ?? DEFAULT_FILE_ICON;
+};
+
+/** Format a byte count as a human-readable string (Bytes / KB / MB / GB). */
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const units = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${units[i]}`;
+};
+
+/** Derive the CSS modifier class for the status message bar. */
+const statusClass = (msg) => {
+  if (msg.includes('Successfully')) return 'success';
+  if (msg.includes('failed') || msg.includes('filtered')) return 'error';
+  return 'info';
+};
 
 const LoadWikiPage = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -10,16 +39,18 @@ const LoadWikiPage = () => {
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter(file => {
-      const isValidType = file.type === 'application/pdf' || 
-                         file.type === 'application/msword' ||
-                         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
-      return isValidType && isValidSize;
-    });
+
+    // Client-side validation mirrors backend rules for instant feedback
+    const validFiles = files.filter(
+      (file) => ALLOWED_FILE_TYPES.includes(file.type) && file.size <= MAX_FILE_SIZE
+    );
 
     if (validFiles.length !== files.length) {
-      setUploadStatus('Some files were filtered out. Only PDF and Word documents under 10MB are allowed.');
+      setUploadStatus(
+        'Some files were filtered out. Only PDF and Word documents under 10 MB are allowed.'
+      );
+    } else {
+      setUploadStatus('');
     }
 
     setSelectedFiles(validFiles);
@@ -32,32 +63,20 @@ const LoadWikiPage = () => {
     }
 
     setIsUploading(true);
-    setUploadStatus('Uploading files...');
+    setUploadStatus('Uploading files…');
 
     try {
-      const formData = new FormData();
-      selectedFiles.forEach((file) => {
-        formData.append('files', file);
-      });
-
-      const response = await axios.post('/api/upload-wiki', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadStatus(`Uploading... ${percentCompleted}%`);
-        },
+      const data = await uploadWikiFiles(selectedFiles, (percent) => {
+        setUploadStatus(`Uploading… ${percent}%`);
       });
 
       setUploadStatus(`Successfully uploaded ${selectedFiles.length} file(s)!`);
-      setUploadedFiles(prev => [...prev, ...response.data.files]);
+      setUploadedFiles((prev) => [...prev, ...data.files]);
       setSelectedFiles([]);
-      
-      // Reset file input
+
+      // Reset the file input so the same file can be selected again if needed
       const fileInput = document.getElementById('file-input');
       if (fileInput) fileInput.value = '';
-
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus('Upload failed. Please try again.');
@@ -67,28 +86,7 @@ const LoadWikiPage = () => {
   };
 
   const removeFile = (index) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getFileIcon = (fileName) => {
-    const extension = fileName.split('.').pop().toLowerCase();
-    switch (extension) {
-      case 'pdf':
-        return '📄';
-      case 'doc':
-      case 'docx':
-        return '📝';
-      default:
-        return '📄';
-    }
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -100,6 +98,7 @@ const LoadWikiPage = () => {
 
       <div className="upload-section">
         <div className="upload-area">
+          {/* File picker */}
           <div className="file-input-wrapper">
             <input
               id="file-input"
@@ -113,11 +112,12 @@ const LoadWikiPage = () => {
               <div className="upload-icon">📁</div>
               <div className="upload-text">
                 <span>Click to select files</span>
-                <small>PDF, DOC, DOCX files up to 10MB each</small>
+                <small>{ALLOWED_FILE_LABEL}</small>
               </div>
             </label>
           </div>
 
+          {/* Pending file list */}
           {selectedFiles.length > 0 && (
             <div className="selected-files">
               <h3>Selected Files ({selectedFiles.length})</h3>
@@ -135,31 +135,34 @@ const LoadWikiPage = () => {
                       onClick={() => removeFile(index)}
                       className="remove-button"
                       type="button"
+                      aria-label={`Remove ${file.name}`}
                     >
                       ✕
                     </button>
                   </div>
                 ))}
               </div>
-              
+
               <button
                 onClick={handleUpload}
                 disabled={isUploading}
                 className="upload-button"
               >
-                {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} File(s)`}
+                {isUploading ? 'Uploading…' : `Upload ${selectedFiles.length} File(s)`}
               </button>
             </div>
           )}
 
+          {/* Status bar */}
           {uploadStatus && (
-            <div className={`status-message ${uploadStatus.includes('Successfully') ? 'success' : uploadStatus.includes('failed') ? 'error' : 'info'}`}>
+            <div className={`status-message ${statusClass(uploadStatus)}`}>
               {uploadStatus}
             </div>
           )}
         </div>
       </div>
 
+      {/* Recently uploaded files (current session only) */}
       {uploadedFiles.length > 0 && (
         <div className="uploaded-files-section">
           <h3>📋 Recently Uploaded Files</h3>
@@ -185,7 +188,7 @@ const LoadWikiPage = () => {
         <ul>
           <li>Upload PDF or Word documents that contain information you want the chatbot to learn from</li>
           <li>Files are processed automatically and integrated into the AI knowledge base</li>
-          <li>Maximum file size: 10MB per file</li>
+          <li>Maximum file size: 10 MB per file</li>
           <li>Supported formats: PDF (.pdf), Word (.doc, .docx)</li>
           <li>After uploading, go to the Chat page to ask questions about your documents</li>
         </ul>

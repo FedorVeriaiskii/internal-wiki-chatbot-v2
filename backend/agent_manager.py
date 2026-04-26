@@ -1,119 +1,168 @@
-"""Agent Manager for LangChain agent initialization and management"""
+"""LangChain ReAct agent initialisation and execution."""
 
-from langchain.agents import create_agent
+import logging
+
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+
 from rag_manager import RAGManager
+
+logger = logging.getLogger(__name__)
+
+# System prompt injected into every agent invocation
+SYSTEM_PROMPT = (
+    "You are a helpful assistant that answers questions based on uploaded company documents.\n\n"
+    "Use the search_documents tool to find relevant information from uploaded documents "
+    "when answering questions. Always base your answers on the retrieved document content "
+    "and provide clear, accurate responses."
+)
 
 
 class AgentManager:
+    """Initialises and runs the LangGraph ReAct agent with RAG capabilities.
+
+    The agent is given a single tool — search_documents — that performs
+    similarity search against the in-memory vector store maintained by
+    RAGManager.
     """
-    Manages LangChain agent initialization and tool definitions
-    Handles agent creation with RAG capabilities
-    """
-    
-    def __init__(self, rag_manager: RAGManager, model: ChatOpenAI):
-        """
-        Initialize the agent manager
-        
-        Args:
-            rag_manager: RAGManager instance for document retrieval
-            model: ChatOpenAI model instance
-        """
+
+    def __init__(self, rag_manager: RAGManager, model: ChatOpenAI) -> None:
         self.rag_manager = rag_manager
         self.model = model
         self.agent = None
         self._setup_tools()
-        self.initialize()
-    
-    def _setup_tools(self):
-        """Setup tools for the agent"""
+        self._initialize_agent()
+
+    # ------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------
+
+    @property
+    def is_ready(self) -> bool:
+        """True when the agent has been successfully initialised."""
+        return self.agent is not None
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _setup_tools(self) -> None:
+        """Define and register tools available to the agent."""
+
+        # The @tool decorator must reference self via closure, so the
+        # function is defined inside the method.
         @tool
         def search_documents(query: str) -> str:
             """Search through uploaded documents for relevant information."""
-            documents = self.rag_manager.retrieve_data_from_vector_store(query, k=3)
+            documents = self.rag_manager.retrieve_data_from_vector_store(query)
             if not documents:
                 return "No relevant documents found or no documents have been uploaded yet."
-            
-            # Format the results
+
             results = []
             for i, doc in enumerate(documents, 1):
-                source = doc.metadata.get('source', 'Unknown source')
-                content = doc.page_content.strip()[:500]  # Limit content length
+                source = doc.metadata.get("source", "Unknown source")
+                # Truncate each chunk to keep the tool response concise
+                content = doc.page_content.strip()[:500]
                 results.append(f"Document {i} (Source: {source}):\n{content}...")
-            
+
             return "\n\n".join(results)
-        
+
         self.tools = [search_documents]
-    
-    def initialize(self):
-        """Initialize the agent with tools and model"""
+        logger.debug("Agent tools registered: %s", [t.name for t in self.tools])
+
+    def _initialize_agent(self) -> None:
+        """Create the LangGraph ReAct agent with the configured model and tools."""
         try:
-            # Create the agent with the new API
-            system_prompt = """You are a helpful assistant that can search through uploaded documents to answer questions.
-            
-Use the search_documents tool to find relevant information from uploaded documents when answering questions.
-Always provide clear and helpful answers based on the documents available."""
-            
-            self.agent = create_agent(
+            self.agent = create_react_agent(
                 model=self.model,
                 tools=self.tools,
-                system_prompt=system_prompt
+                prompt=SYSTEM_PROMPT,
             )
-            print("Agent initialized successfully")
-        except Exception as e:
-            print(f"Error initializing agent: {str(e)}")
+            logger.info("Agent initialised successfully")
+        except Exception as exc:
+            logger.exception("Failed to initialise agent: %s", exc)
             self.agent = None
-    
-    def get_agent(self):
-        """Get the initialized agent"""
-        return self.agent
-    
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
     def process_stream(self, user_message: str) -> str:
-        """
-        Process agent streaming response
-        
+        """Run the agent on *user_message* and return the final text response.
+
+        Streams incremental updates from LangGraph and collects only the
+        agent's final reply (ignoring intermediate tool-call messages).
+
         Args:
-            user_message: User's input message
-        
+            user_message: The user's question or instruction.
+
         Returns:
-            Agent's response text
+            The agent's text response, or a fallback message if no content
+            was produced.
+
+        Raises:
+            RuntimeError: If the agent is not initialised.
         """
-        response_parts = []
-        tool_calls_info = []
-        
-        # Stream the agent response directly from agent
+        if not self.is_ready:
+            raise RuntimeError("Agent is not initialised")
+
+        response_parts: list[str] = []
+        tool_calls_made: list[str] = []
+
+        logger.info("Starting agent stream for message (length: %d)", len(user_message))
+
         for chunk in self.agent.stream(
             {"messages": [{"role": "user", "content": user_message}]},
             stream_mode="updates",
         ):
             for step, data in chunk.items():
-                print(f"step: {step}")
-                
-                # Process agent messages
+
                 if step == "agent" and "messages" in data:
-                    messages = data["messages"]
-                    if messages:
-                        last_message = messages[-1]
-                        if hasattr(last_message, 'content') and last_message.content:
-                            response_parts.append(last_message.content)
-                            print(f"Agent: {last_message.content}")
-                        if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
-                            tool_names = [tc.get('name', 'unknown') for tc in last_message.tool_calls]
-                            tool_calls_info.extend(tool_names)
-                            print(f"Calling tools: {tool_names}")
-                
-                # Handle tool execution output
+                    last_msg = data["messages"][-1] if data["messages"] else None
+                    if last_msg is None:
+                        continue
+
+                    has_tool_calls = bool(
+                        getattr(last_msg, "tool_calls", None)
+                    )
+
+                    if has_tool_calls:
+                        # Intermediate reasoning step — agent is invoking tools
+                        tool_names = [
+                            tc.get("name", "unknown") for tc in last_msg.tool_calls
+                        ]
+                        tool_calls_made.extend(tool_names)
+                        logger.debug("Agent calling tools: %s", tool_names)
+
+                    elif getattr(last_msg, "content", None):
+                        # Final response — no more tool calls pending
+                        response_parts.append(last_msg.content)
+                        logger.debug(
+                            "Agent final response (length: %d)", len(last_msg.content)
+                        )
+
                 elif step == "tools" and "messages" in data:
-                    messages = data["messages"]
-                    if messages:
-                        tool_output = str(messages[-1].content) if hasattr(messages[-1], 'content') else ""
-                        print(f"Tool output received: {len(tool_output)} characters")
-        
-        # Combine response parts
+                    # Log tool execution results for observability
+                    last_msg = data["messages"][-1] if data["messages"] else None
+                    if last_msg and getattr(last_msg, "content", None):
+                        logger.debug(
+                            "Tool output received (%d chars)", len(str(last_msg.content))
+                        )
+
         if response_parts:
-            return " ".join(response_parts)
-        elif tool_calls_info:
-            return f"I searched through your documents using tools: {', '.join(set(tool_calls_info))}. However, I didn't generate a final response. Please try rephrasing your question."
-        else:
-            return "I processed your request but didn't generate a response. Please try asking your question in a different way."
+            return "\n\n".join(response_parts)
+
+        if tool_calls_made:
+            logger.warning(
+                "Agent called tools %s but produced no final response",
+                set(tool_calls_made),
+            )
+            return (
+                f"I searched your documents using: {', '.join(set(tool_calls_made))}. "
+                "However, I couldn't generate a final response. "
+                "Please try rephrasing your question."
+            )
+
+        logger.warning("Agent stream completed with no response and no tool calls")
+        return "I processed your request but didn't generate a response. Please try asking in a different way."

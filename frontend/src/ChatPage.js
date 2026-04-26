@@ -1,65 +1,68 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { sendChatMessage } from './api';
 import './ChatPage.css';
 
+/** Initial bot greeting shown when the chat is first opened. */
+const WELCOME_MESSAGE = {
+  id: 1,
+  text: "Hello! I'm your internal wiki assistant. Ask me anything about the company's internal knowledge base.",
+  sender: 'bot',
+  timestamp: new Date(),
+};
+
+/** Format a Date object as HH:MM for display inside chat bubbles. */
+const formatTime = (timestamp) =>
+  timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
 const ChatPage = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! I'm your internal wiki assistant. Ask me anything about company's internal knowledge base.", sender: 'bot', timestamp: new Date() }
-  ]);
+  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
+  // Scroll to the latest message whenever the list changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    const trimmed = inputMessage.trim();
+    if (!trimmed) return;
 
+    // Append the user's message immediately for a responsive feel
     const userMessage = {
       id: Date.now(),
-      text: inputMessage,
+      text: trimmed,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/chat', { 
-        message: inputMessage 
-      });
-      
+      const data = await sendChatMessage(trimmed);
       const botMessage = {
         id: Date.now() + 1,
-        text: response.data.response || "I'm sorry, I couldn't process your request right now.",
+        text: data.response || "I'm sorry, I couldn't process your request right now.",
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error sending chat message:', error);
       const errorMessage = {
         id: Date.now() + 1,
         text: "Sorry, I'm having trouble connecting to the server. Please try again later.",
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatTime = (timestamp) => {
-    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -68,7 +71,7 @@ const ChatPage = () => {
         <h2>🤖 Internal Wiki Chatbot</h2>
         <p>Ask questions about your uploaded documents</p>
       </div>
-      
+
       <div className="chat-messages">
         {messages.map((message) => (
           <div
@@ -81,7 +84,8 @@ const ChatPage = () => {
             </div>
           </div>
         ))}
-        
+
+        {/* Typing indicator while waiting for a bot response */}
         {isLoading && (
           <div className="message bot-message">
             <div className="message-content">
@@ -93,16 +97,18 @@ const ChatPage = () => {
             </div>
           </div>
         )}
+
+        {/* Sentinel element used to scroll into view */}
         <div ref={messagesEndRef} />
       </div>
-      
+
       <form className="chat-input-form" onSubmit={handleSendMessage}>
         <div className="chat-input-container">
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Ask a question about company's internal knowledge base..."
+            placeholder="Ask a question about the company's internal knowledge base…"
             className="chat-input"
             disabled={isLoading}
           />
@@ -111,7 +117,7 @@ const ChatPage = () => {
             className="send-button"
             disabled={!inputMessage.trim() || isLoading}
           >
-            {isLoading ? '...' : '📤'}
+            {isLoading ? '…' : '📤'}
           </button>
         </div>
       </form>
