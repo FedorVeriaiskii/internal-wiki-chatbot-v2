@@ -1,0 +1,35 @@
+# Nexta Internal Working Rules & Culture Guide
+
+Welcome to the **Nexta** team! We believe that clear expectations lead to better work and fewer "wait, was I supposed to do that?" moments. These rules aren't meant to be a straightjacket—they are the framework that allows our creativity to flourish.
+
+---
+
+## 1. The Daily Rhythm (Hours & Presence)
+At Nexta, we focus on **outcomes over hours**. However, to ensure we can actually collaborate without playing 24-hour tag, we follow these guidelines:
+
+* **Core Collaboration Hours:** While we offer flexible start times, all team members are expected to be online and available between **10:00 AM and 3:00 PM (Local Time)**.
+* **Standard Workday:** A typical day is 8 hours. Most "Nextans" settle into a **9:00 AM – 5:00 PM** or **8:30 AM – 4:30 PM** groove.
+* **Status Updates:** If you’re stepping away for more than 30 minutes (gym, school run, or a very long sandwich), please update your Slack status so your teammates aren't shouting into the void.
+
+## 2. Rest & Recharge (Vacations & Leave)
+A burnt-out Nextan is a sad Nextan. We want you to use your time off.
+
+* **PTO Accrual:** Full-time employees accrue **20 days of Paid Time Off** per year, plus public holidays.
+* **The "Nexta Recharge":** The office is closed the entire week between Christmas and New Year’s Day. This does *not* count against your PTO.
+* **Booking Leave:** For any trip longer than two days, please submit your request in the HR portal at least **two weeks in advance**. We rarely say no, but we do need to make sure the ship keeps sailing.
+* **Sick Days:** If you’re unwell, **stay offline**. Rest is the only way to get back to 100%. No "heroics" required.
+
+## 3. Communication Etiquette
+We move fast, but we don't want to drown in notifications.
+
+* **Slack vs. Email:** Use Slack for quick syncs and "vibe checks." Use Email for formal approvals, client-facing communication, and anything that needs a permanent paper trail.
+* **The 24-Hour Rule:** We aim to acknowledge internal messages within one business day. If it’s an emergency, use the "URGENT" tag (but use it sparingly).
+* **Meeting-Free Wednesdays:** To encourage "Deep Work," we discourage internal meetings on Wednesdays. Put your head down and build something cool.
+
+## 4. Workspace & Dress Code
+* **The "Nexta" Look:** Our dress code is **"Dress for your Day."** If you’re meeting a high-level client, maybe skip the flip-flops. If you’re coding in the corner all day, hoodies are basically our unofficial uniform.
+* **Hybrid Setup:** For those in hybrid roles, we congregate in the office on **Tuesdays and Thursdays** for catered lunches and face-to-face brainstorming.
+
+---
+
+> **The Golden Rule:** When in doubt, communicate. We’re all adults here—if you need to shift your schedule or take a mental health afternoon, just let your lead know. We’ve got your back.

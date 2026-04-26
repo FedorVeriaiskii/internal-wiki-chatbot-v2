@@ -1,0 +1,22 @@
+{
+  "name": "fullstack-web-app",
+  "version": "1.0.0",
+  "description": "Full-stack web application with React frontend and Python backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && python -m uvicorn main:app --reload",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:all": "npm run install:frontend && npm run install:backend"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "keywords": ["react", "python", "fastapi", "fullstack"],
+  "author": "",
+  "license": "ISC"
+}

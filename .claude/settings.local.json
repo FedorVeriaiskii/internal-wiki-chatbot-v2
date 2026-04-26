@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda env:*)",
+      "Bash(conda run:*)",
+      "Bash(echo \"Backend PID: $!\")",
+      "Bash(npm start:*)",
+      "Bash(echo \"Frontend PID: $!\")",
+      "Bash(curl:*)",
+      "Bash(echo \"Backend started with PID: $!\")",
+      "Bash(jobs:*)",
+      "Skill(update-config)"
+    ]
+  }
+}
