@@ -66,6 +66,9 @@ dist/
 # React production build
 frontend/build/
 
+# Local test sources
+rag_test_sources/
+
 # Temporary files
 *.tmp
 *.temp
