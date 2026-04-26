@@ -7,3 +7,13 @@ sqlalchemy==2.0.23
 alembic==1.13.1
 pytest==7.4.3
 httpx==0.25.2
+
+# LangChain framework and dependencies
+langchain
+langchain-community
+langchain-openai
+chromadb
+pypdf
+python-docx
+tiktoken
+sentence-transformers

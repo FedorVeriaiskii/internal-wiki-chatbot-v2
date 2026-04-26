@@ -9,6 +9,17 @@ import json
 import tempfile
 import shutil
 
+# LangChain imports
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
+from langchain.schema import Document
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_community.document_loaders import DirectoryLoader
+
 app = FastAPI(title="Internal Wiki Chatbot API", version="2.0.0")
 
 # Configure CORS
@@ -23,6 +34,23 @@ app.add_middleware(
 # Create uploads directory if it doesn't exist
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Initialize LangChain components
+embeddings = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cpu'}
+)
+
+# Initialize text splitter
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+)
+
+# Initialize vector store (will be None until documents are loaded)
+vector_store = None
+retrieval_qa_chain = None
 
 # Pydantic models
 class ChatMessage(BaseModel):
