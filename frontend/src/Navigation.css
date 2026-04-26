@@ -1,95 +1,54 @@
 .navigation {
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-  padding: 0 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  padding: 0;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navigation-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
 }
 
-.nav-brand h1 {
-  color: white;
+.navigation h1 {
   margin: 0;
   font-size: 24px;
-  font-weight: 700;
-  padding: 15px 0;
+  font-weight: 600;
+  letter-spacing: -0.5px;
 }
 
 .nav-links {
   display: flex;
-  gap: 20px;
+  gap: 30px;
+  margin: 0;
+  align-items: center;
 }
 
-.nav-link {
+.nav-links a {
   color: white;
   text-decoration: none;
-  padding: 15px 20px;
-  border-radius: 25px;
-  transition: all 0.3s ease;
+  padding: 10px 0;
   font-weight: 500;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+.nav-links a:hover {
+  opacity: 0.8;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
 }
 
-.nav-link.active {
-  background-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.nav-link.active::before {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background: white;
-  border-radius: 2px;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .navigation {
-    padding: 0 15px;
-  }
-  
-  .nav-brand h1 {
-    font-size: 20px;
-  }
-  
-  .nav-links {
-    gap: 10px;
-  }
-  
-  .nav-link {
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .navigation {
-    flex-direction: column;
-    padding: 15px;
-  }
-  
-  .nav-brand {
-    margin-bottom: 10px;
-  }
-  
-  .nav-links {
-    width: 100%;
-    justify-content: center;
-  }
+.nav-links a.active {
+  border-bottom-color: white;
+  opacity: 1;
 }

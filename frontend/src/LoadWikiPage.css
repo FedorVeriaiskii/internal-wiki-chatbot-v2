@@ -1,186 +1,119 @@
 .load-wiki-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px);
   background-color: #f8f9fa;
-  min-height: 100vh;
+  animation: fadeIn 0.3s ease;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px 0;
 }
 
 .load-wiki-header {
-  text-align: center;
-  margin-bottom: 30px;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
   color: white;
-  padding: 30px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+  padding: 25px 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .load-wiki-header h2 {
-  margin: 0 0 10px 0;
-  font-size: 28px;
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .load-wiki-header p {
   margin: 0;
-  opacity: 0.9;
-  font-size: 16px;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.load-wiki-page {
+  padding: 30px;
+  flex: 1;
+  overflow-y: auto;
+  animation: slideInLeft 0.4s ease;
+}
+
+.load-wiki-page h2 {
+  margin-bottom: 30px;
+  color: #333333;
+  font-size: 28px;
+  font-weight: 600;
+  padding: 20px 0;
 }
 
 .upload-section {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
   margin-bottom: 30px;
-}
-
-.upload-area {
-  border: 2px dashed #ced4da;
-  border-radius: 12px;
-  padding: 40px 20px;
-  text-align: center;
+  border: 2px dashed #0066cc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
-.upload-area:hover {
-  border-color: #28a745;
-  background-color: #f8fff9;
+.upload-section:hover {
+  border-color: #0052a3;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+}
+
+.upload-section h3 {
+  margin-bottom: 20px;
+  color: #333333;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 15px 0;
 }
 
 .file-input-wrapper {
   position: relative;
-  margin-bottom: 20px;
+  display: inline-block;
+  cursor: pointer;
 }
 
-.file-input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+.file-input-wrapper input {
+  display: none;
 }
 
 .file-input-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  color: white;
+  border-radius: 6px;
   cursor: pointer;
-  padding: 20px;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.file-input-label:hover {
-  background-color: rgba(40, 167, 69, 0.05);
-}
-
-.upload-icon {
-  font-size: 48px;
-  opacity: 0.7;
-}
-
-.upload-text span {
-  display: block;
-  font-size: 18px;
   font-weight: 600;
-  color: #495057;
-  margin-bottom: 5px;
-}
-
-.upload-text small {
-  color: #6c757d;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-size: 14px;
 }
 
-.selected-files {
-  margin-top: 30px;
-  text-align: left;
-}
-
-.selected-files h3 {
-  margin: 0 0 20px 0;
-  color: #495057;
-  font-size: 18px;
-}
-
-.file-list {
-  margin-bottom: 20px;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  background: #f8f9fa;
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.file-icon {
-  font-size: 24px;
-}
-
-.file-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.file-name {
-  font-weight: 500;
-  color: #495057;
-  margin-bottom: 2px;
-}
-
-.file-size {
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.remove-button {
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.remove-button:hover {
-  background: #c82333;
-  transform: scale(1.1);
+.file-input-label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 }
 
 .upload-button {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  margin-left: 12px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #00aa44 0%, #008833 100%);
   color: white;
   border: none;
-  padding: 12px 30px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
 }
 
-.upload-button:hover:not(:disabled) {
+.upload-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 170, 68, 0.3);
 }
 
 .upload-button:disabled {
@@ -189,150 +122,57 @@
   transform: none;
 }
 
-.status-message {
-  margin-top: 15px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-weight: 500;
+.file-list {
+  margin-top: 30px;
 }
 
-.status-message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+.file-list h3 {
+  margin-bottom: 20px;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 15px 0;
 }
 
-.status-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.status-message.info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
-}
-
-.uploaded-files-section {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  margin-bottom: 30px;
-}
-
-.uploaded-files-section h3 {
-  margin: 0 0 20px 0;
-  color: #495057;
-  font-size: 20px;
-}
-
-.uploaded-files-list {
+.file-item {
+  background-color: #f8f9fa;
+  padding: 16px 20px;
+  margin: 12px 0;
+  border-radius: 6px;
+  border-left: 4px solid #0066cc;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.uploaded-file-item {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #28a745;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.uploaded-file-info {
+.file-item:hover {
+  background-color: #f0f0f0;
+  border-left-color: #0052a3;
+  transform: translateX(4px);
+}
+
+.file-info {
   display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin-left: 12px;
-}
-
-.uploaded-file-info .file-name {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.upload-time {
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-badge.success {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.instructions {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  gap: 30px;
+  align-items: center;
 }
 
 .instructions h3 {
-  margin: 0 0 20px 0;
-  color: #495057;
-  font-size: 20px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
 }
 
-.instructions ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.file-info span {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
 }
 
-.instructions li {
-  padding: 8px 0;
-  color: #495057;
-  position: relative;
-  padding-left: 25px;
-}
-
-.instructions li:before {
-  content: "•";
-  color: #28a745;
-  font-weight: bold;
-  position: absolute;
-  left: 0;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .load-wiki-container {
-    padding: 15px;
-  }
-  
-  .load-wiki-header {
-    padding: 20px 15px;
-  }
-  
-  .upload-section,
-  .uploaded-files-section,
-  .instructions {
-    padding: 20px;
-  }
-  
-  .upload-area {
-    padding: 30px 15px;
-  }
-  
-  .file-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .remove-button {
-    align-self: flex-end;
-  }
+.file-name {
+  color: #0066cc;
+  font-weight: 600;
 }

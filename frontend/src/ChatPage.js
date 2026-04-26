@@ -4,7 +4,7 @@ import './ChatPage.css';
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! I'm your internal wiki assistant. Ask me anything about your uploaded documents.", sender: 'bot', timestamp: new Date() }
+    { id: 1, text: "Hello! I'm your internal wiki assistant. Ask me anything about company's internal knowledge base.", sender: 'bot', timestamp: new Date() }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -102,7 +102,7 @@ const ChatPage = () => {
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Ask a question about your wiki documents..."
+            placeholder="Ask a question about company's internal knowledge base..."
             className="chat-input"
             disabled={isLoading}
           />

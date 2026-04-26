@@ -7,22 +7,22 @@ const Navigation = () => {
 
   return (
     <nav className="navigation">
-      <div className="nav-brand">
+      <div className="navigation-container">
         <h1>🤖 Wiki Chatbot</h1>
-      </div>
-      <div className="nav-links">
-        <Link 
-          to="/" 
-          className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-        >
-          💬 Chat
-        </Link>
-        <Link 
-          to="/load-wiki" 
-          className={`nav-link ${location.pathname === '/load-wiki' ? 'active' : ''}`}
-        >
-          📚 Load Wiki
-        </Link>
+        <div className="nav-links">
+          <Link 
+            to="/" 
+            className={location.pathname === '/' ? 'active' : ''}
+          >
+            💬 Chat
+          </Link>
+          <Link 
+            to="/load-wiki" 
+            className={location.pathname === '/load-wiki' ? 'active' : ''}
+          >
+            📚 Load Wiki
+          </Link>
+        </div>
       </div>
     </nav>
   );

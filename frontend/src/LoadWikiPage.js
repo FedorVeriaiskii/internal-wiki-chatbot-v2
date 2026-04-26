@@ -181,7 +181,7 @@ const LoadWikiPage = () => {
       )}
 
       <div className="instructions">
-        <h3>📋 Instructions</h3>
+        <h3>Instructions</h3>
         <ul>
           <li>Upload PDF or Word documents that contain information you want the chatbot to learn from</li>
           <li>Files are processed automatically and integrated into the AI knowledge base</li>
