@@ -1,16 +1,39 @@
 # Internal Wiki Chatbot
 
-An AI-powered internal wiki chatbot built with React.js frontend and Python FastAPI backend. Upload documents and chat with your knowledge base using natural language.
+An AI-powered internal wiki chatbot that enables natural language conversations with your company's knowledge base. Built with **React.js** frontend and **Python FastAPI** backend, leveraging the **LangChain** framework for advanced AI capabilities including LLM agents and retrieval-augmented generation (RAG).
 
-## 🚀 Features
+## Features
 
-- **Intelligent Chat Interface**: Natural language conversation with your documents
+- **Intelligent Chat Interface**: Natural language conversation with your documents powered by LLM agents
+- **RAG (Retrieval-Augmented Generation)**: Smart document indexing and retrieval for accurate AI responses
 - **Document Upload**: Support for PDF and Word documents (up to 10MB each)
+- **LangChain Integration**: Advanced language model orchestration with LLM agents and retrieval systems
 - **Responsive Design**: Modern, mobile-friendly interface
 - **Real-time Processing**: Instant file upload and chat responses
 - **RESTful API**: Well-documented FastAPI backend with automatic OpenAPI docs
 
-## 📁 Project Structure
+## Technology Stack
+
+### Frontend
+- **React.js**: Modern JavaScript library for building interactive user interfaces
+- **React Router**: Client-side routing for multi-page application
+- **Axios**: HTTP client for API communication
+
+### Backend
+- **Python**: Core backend language
+- **FastAPI**: Modern, fast web framework for building APIs
+- **LangChain**: Framework for developing applications powered by language models
+  - **LLM Agents**: Intelligent agents that can reason and take actions
+  - **RAG (Retrieval-Augmented Generation)**: Document indexing and semantic search for accurate information retrieval
+  - **Vector Embeddings**: Semantic understanding of document content
+## Application Screenshots
+
+### Chat Interface
+![Frontend app - Chat Interface](docu/screens/Frontend%20app%20-%20chat.png)
+
+### Wiki Documents Loader
+![Frontend app - Wiki Documents Loader](docu/screens/Frontend%20app%20-%20wiki%20documents%20loader.png)
+## Project Structure
 
 ```
 internal-wiki-chatbot/
@@ -30,7 +53,7 @@ internal-wiki-chatbot/
 └── README.md
 ```
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 
@@ -61,7 +84,7 @@ internal-wiki-chatbot/
    npm run install:all
    ```
 
-## 🚀 Running the Application
+## Running the Application
 
 ### Development Mode (Recommended)
 
@@ -91,7 +114,7 @@ npm run dev:backend
 npm run build
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 The backend provides the following REST API endpoints:
 
@@ -108,13 +131,13 @@ The backend provides the following REST API endpoints:
 - `GET /` - Welcome message
 - `GET /api/health` - Health check
 
-## 🌐 API Documentation
+## API Documentation
 
 When the backend is running, you can access interactive API documentation at:
 - **Swagger UI**: `http://localhost:8000/docs`
 - **ReDoc**: `http://localhost:8000/redoc`
 
-## 🎯 Usage
+## Usage
 
 ### Main Chat Interface
 1. Start the application using `npm run dev`
@@ -128,7 +151,7 @@ When the backend is running, you can access interactive API documentation at:
 3. Files are automatically processed and indexed
 4. Return to chat to ask questions about the uploaded content
 
-## 🔧 Configuration
+## Configuration
 
 ### Backend Configuration
 
@@ -138,7 +161,7 @@ The backend is configured with CORS to allow requests from the React development
 
 The frontend uses a proxy configuration in `package.json` to forward API requests to the backend server.
 
-## 🧪 Testing
+## Testing
 
 The project includes test configurations for both frontend and backend:
 
@@ -152,7 +175,7 @@ cd frontend && npm test
 cd backend && pytest
 ```
 
-## 📦 Production Deployment
+## Production Deployment
 
 1. **Build the frontend**:
    ```bash
@@ -167,14 +190,14 @@ cd backend && pytest
    gunicorn backend.main:app -w 4 -k uvicorn.workers.UvicornWorker
    ```
 
-## 🛡️ Security Notes
+## Security Notes
 
 - The current implementation uses in-memory storage for simplicity
 - For production, implement proper database integration
 - Add authentication and authorization as needed
 - Configure proper CORS origins for production
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -182,6 +205,6 @@ cd backend && pytest
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the ISC License - see the package.json file for details.
