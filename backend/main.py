@@ -25,7 +25,7 @@ from rag_manager import RAGManager
 load_dotenv()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s  %(levelname)-8s  %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -97,6 +97,7 @@ async def chat_endpoint(chat_message: ChatMessage):
     """
     user_message = chat_message.message.strip()
     logger.info("Chat request received (message length: %d)", len(user_message))
+    print(f"\n[DEBUG main] /api/chat | user message: {user_message!r}")
 
     if not agent_manager.is_ready:
         logger.error("Agent is not initialised — cannot handle chat request")
@@ -108,6 +109,7 @@ async def chat_endpoint(chat_message: ChatMessage):
         try:
             response_text = agent_manager.process_stream(user_message)
             logger.info("Agent returned a response (length: %d)", len(response_text))
+            print(f"[DEBUG main] /api/chat | bot response: {response_text[:300]!r}{'...' if len(response_text) > 300 else ''}")
         except Exception as exc:
             logger.exception("Error during agent execution: %s", exc)
             if not uploaded_files:

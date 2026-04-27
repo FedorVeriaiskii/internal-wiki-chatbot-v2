@@ -111,6 +111,7 @@ class AgentManager:
         tool_calls_made: list[str] = []
 
         logger.info("Starting agent stream for message (length: %d)", len(user_message))
+        print(f"\n[DEBUG agent] process_stream | message: {user_message!r}")
 
         for chunk in self.agent.stream(
             {"messages": [{"role": "user", "content": user_message}]},
@@ -134,6 +135,8 @@ class AgentManager:
                         ]
                         tool_calls_made.extend(tool_names)
                         logger.debug("Agent calling tools: %s", tool_names)
+                        for tc in last_msg.tool_calls:
+                            print(f"[DEBUG agent] tool_call | {tc.get('name')} | args: {tc.get('args')}")
 
                     elif getattr(last_msg, "content", None):
                         # Final response — no more tool calls pending
@@ -141,14 +144,17 @@ class AgentManager:
                         logger.debug(
                             "Agent final response (length: %d)", len(last_msg.content)
                         )
+                        print(f"[DEBUG agent] final_response_part | {last_msg.content[:300]!r}{'...' if len(last_msg.content) > 300 else ''}")
 
                 elif step == "tools" and "messages" in data:
                     # Log tool execution results for observability
                     last_msg = data["messages"][-1] if data["messages"] else None
                     if last_msg and getattr(last_msg, "content", None):
+                        content_str = str(last_msg.content)
                         logger.debug(
-                            "Tool output received (%d chars)", len(str(last_msg.content))
+                            "Tool output received (%d chars)", len(content_str)
                         )
+                        print(f"[DEBUG agent] tool_output | {len(content_str)} chars | {content_str[:400]!r}{'...' if len(content_str) > 400 else ''}")
 
         if response_parts:
             return "\n\n".join(response_parts)

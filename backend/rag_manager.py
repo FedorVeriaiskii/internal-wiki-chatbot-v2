@@ -69,6 +69,9 @@ class RAGManager:
         logger.info("Splitting %d document(s) into chunks…", len(documents))
         chunks = self.text_splitter.split_documents(documents)
         logger.info("Created %d text chunk(s)", len(chunks))
+        print(f"[DEBUG rag] embed | {len(chunks)} chunks from {len(documents)} doc(s)")
+        if chunks:
+            print(f"[DEBUG rag] embed | first chunk preview: {chunks[0].page_content[:200]!r}")
 
         try:
             self.vector_store = InMemoryVectorStore(self.embeddings)
@@ -100,12 +103,16 @@ class RAGManager:
             return []
 
         try:
+            print(f"[DEBUG rag] similarity_search | query: {query!r} | k={k}")
             results = self.vector_store.similarity_search(query, k=k)
             logger.info(
                 "Similarity search returned %d result(s) for query: '%s'",
                 len(results),
                 query[:80],
             )
+            for i, doc in enumerate(results):
+                src = doc.metadata.get("source", "?")
+                print(f"[DEBUG rag] result[{i}] | source: {src} | content: {doc.page_content[:200]!r}")
             return results
         except Exception as exc:
             logger.exception("Error during similarity search: %s", exc)
